@@ -1,5 +1,7 @@
 import unittest
 from SpiderSolitar import SpiderSolitaire
+from spider_next_moves import SpiderSolitaireNextMoves
+from spider_reverse import SpiderSolitaireReverse
 
 
 class TestReverseMove(unittest.TestCase):
@@ -8,13 +10,13 @@ class TestReverseMove(unittest.TestCase):
         s = SpiderSolitaire()
         # start with random moves
         for _ in range(100):
-            s.apply_random_move()
+            SpiderSolitaireNextMoves.apply_random_move(s)
 
         # just do a lot of random moves and check that each is a valid move
         before = [[card for card in pile ] for pile in s.tableau]
         # print(s.tableau_to_string())
         for _ in range(10000):
-            move = s.do_random_reverse_move()
+            move = SpiderSolitaireReverse.do_random_reverse_move(s)
             # print(move)
             self.assertNotEqual(before, s.tableau)
             if move == 'deal':
@@ -27,7 +29,7 @@ class TestReverseMove(unittest.TestCase):
     @unittest.skip("skip")
     def test_error_case(self):
         s = SpiderSolitaire()
-        s.initialize_tableau_from_string("""
+        s.tableau = SpiderSolitaireParser.tableau_from_string("""
             9s Kd Js Kd 7h 3d 8d Ah Jc As 
             Ad 6d 6c 8c Qd Ks 4c Qc Ts 7d
             3s Jd 3s 4c 9d Ad 9d 2c Ts 4d
