@@ -33,6 +33,13 @@ class SpiderSolitaire:
         self.tableau = SpiderSolitaire.tableau_from_string(tableau_string)
 
     @staticmethod
+    def card_from_string(card_string):
+        rank_str, suit_str = card_string[0], card_string[1]
+        rank = "A23456789TJQK".index(rank_str) + 1
+        suit = "cdhs".index(suit_str)
+        return (rank, suit)
+    
+    @staticmethod
     def tableau_from_string(tableau_string):
         tableau_rows = SpiderSolitaire.remove_indent(tableau_string).split('\n')
         max_pile_length = max(len(row) for row in tableau_rows)
@@ -40,10 +47,7 @@ class SpiderSolitaire:
         for row in tableau_rows:
             for i in range(0,max_pile_length,3):
                 if i < len(row) and row[i] != ' ':
-                    rank_str, suit_str = row[i], row[i+1]
-                    rank = "A23456789TJQK".index(rank_str) + 1
-                    suit = "cdhs".index(suit_str)
-                    card = (rank, suit)
+                    card = SpiderSolitaire.card_from_string(row[i:i+2])
                     tableau[i//3].append(card)
         return tableau
     
@@ -116,7 +120,7 @@ class SpiderSolitaire:
 
     def remove_full_sequence(self):
         for pile in self.tableau:
-            if len(pile) >= 13 and SpiderSolitaire.allowed_cards_to_move(pile) >= 12:
+            if SpiderSolitaire.num_connected_cards(pile) == 13:
                 self.finished_stacks.append(pile[-13:])
                 pile[-13:] = []
                 
@@ -218,26 +222,35 @@ class SpiderSolitaire:
         return None
 
     @staticmethod
-    def allowed_cards_to_move(pile):
+    def max_cards_placed(pile):
+        con_cards = SpiderSolitaire.num_connected_cards(pile)
+        if len(pile) == con_cards:
+            return con_cards
+        elif pile[-con_cards][0] == pile[-con_cards-1][0] - 1:
+            return con_cards
+        else:
+            return con_cards-1
+        
+    def num_connected_cards(pile):
         if len(pile) == 0:
             return 0
         elif len(pile) == 1:
             return 1
         else:
-            connected_count = 0
-            for i in range(len(pile) - 2, -1, -1):
-                if pile[i][0] == pile[i + 1][0] + 1 and pile[i][1] == pile[i + 1][1]:
-                    connected_count += 1
-                else:
-                    break
-            return connected_count
-
+            # rank is okay
+            rank_fits = pile[-1][0] == pile[-2][0] - 1
+            suite_fits = pile[-1][1] == pile[-2][1]
+            if rank_fits and suite_fits:
+                return 1 + SpiderSolitaire.num_connected_cards(pile[:-1])
+            else:
+                return 1
+            
     def do_reverse_basic_move(self, source_idx = None):
         # Randomly select a source pile
         if source_idx is None:
             src_piles_idx = list(range(self.NUM_PILES))
-            # Only take source piles, that have at leas one connection
-            src_piles_idx = [idx for idx in src_piles_idx if SpiderSolitaire.allowed_cards_to_move(self.tableau[idx])>0]
+            # Only take source piles, where at least one card might have been placed
+            src_piles_idx = [idx for idx in src_piles_idx if SpiderSolitaire.max_cards_placed(self.tableau[idx])>0]
             if not src_piles_idx:
                 raise ValueError("No move is possible")
             source_idx = random.choice(src_piles_idx)
@@ -245,41 +258,41 @@ class SpiderSolitaire:
 
         # Count the number of connected cards at the end of the pile
         # Randomly select a number of connected cards to move
-        number_of_cards = random.randint(1, SpiderSolitaire.allowed_cards_to_move(pile))
+        number_of_cards = random.randint(1, SpiderSolitaire.max_cards_placed(pile))
 
         # destination pile must be different from the source pile
-        dst_piles = list(range(self.NUM_PILES))
-        dst_piles.remove(source_idx)
+        dst_piles_idx = list(range(self.NUM_PILES))
+        dst_piles_idx.remove(source_idx)
 
         # If all cards are moved, the destination pile may not be empty
         if number_of_cards == len(pile):
-            dst_piles = [pile for pile in dst_piles if len(self.tableau[pile]) > 0]
+            dst_piles_idx = [pile for pile in dst_piles_idx if len(self.tableau[pile]) > 0]
 
         # pick a random destination pile
         dest_pile = random.choice(dst_piles)
 
         # Move the selected cards and update the tableau
         cards_to_move = self.tableau[source_idx][-number_of_cards:]
-        self.tableau[dest_pile].extend(cards_to_move)
+        self.tableau[dest_idx].extend(cards_to_move)
         self.tableau[source_idx] = self.tableau[source_idx][:-number_of_cards]
 
         # return the move switching src and dst to make it a legal move
-        return dest_pile, source_idx, number_of_cards
+        return dest_idx, source_idx, number_of_cards
    
     def do_reverse_deal(self):
         # Define probabilities based on the number of connected piles
         PROBABILITIES = [1, 0.5, 0.1, 0, 0, 0, 0, 0, 0, 0]
 
         # Count the number of connected piles
-        number_of_connected_piles = 0
+        num_piles_with_moves = 0
         for pile in self.tableau:
             if len(pile) < 2:
                 return None  # To reverse a deal, all piles must have at least two cards
-            if SpiderSolitaire.allowed_cards_to_move(pile)>0:
-                number_of_connected_piles += 1
-        
+            if SpiderSolitaire.max_cards_placed(pile) > 0:
+                num_piles_with_moves += 1
+
         # Check if the un-deal action should run based on probabilities
-        if random.random() <= PROBABILITIES[number_of_connected_piles]:
+        if random.random() <= PROBABILITIES[num_piles_with_moves]:
             # Reverse the order of piles during the un-deal
             for i in reversed(range(len(self.tableau))):
                 pile = self.tableau[i]
@@ -289,8 +302,14 @@ class SpiderSolitaire:
             return None
         
     def undo_remove_full_sequence(self):
+        # Define probabilities based on the number of empty piles
+        PROBABILITIES = [0, 0, 0, 0, 0.1, 0.1, 0.1, 0.5, 0.7, 1]
+
+        # get numper of empty stacks
+        empty_stacks = sum([1 for pile in self.tableau if len(pile) == 0])
+
         pile_index = None  # Initialize to an invalid index
-        if len(self.finished_stacks) > 0:
+        if random.random() <= PROBABILITIES[empty_stacks - 1] and len(self.finished_stacks) > 0:
             # Randomly select a pile index to add the full sequence
             pile_index = random.randint(0, len(self.tableau) - 1)
             pile = self.tableau[pile_index]
@@ -300,15 +319,12 @@ class SpiderSolitaire:
         return pile_index
 
     def do_random_reverse_move(self):
-        PROBABILITY_TO_UNSTACK = 0.3
         
         move = self.do_reverse_deal()
         if move is not None:
             return move
         
-        unstack_idx = None
-        if random.random() > PROBABILITY_TO_UNSTACK:
-            unstack_idx = self.undo_remove_full_sequence()
+        unstack_idx = self.undo_remove_full_sequence()
 
         move = self.do_reverse_basic_move(unstack_idx)
 
@@ -324,11 +340,21 @@ if __name__ == "__main__":
         print(tableau_string)
 
         # Take user input
-        user_input = input("Enter 'm' for random move, 'd' for deal, 'r' for random reverse, or 'q' to quit: ")
+        user_input = input("Enter 'm' for random move, 'd' for deal, 'r' for random reverse, 'c' to clear, 'n' to start new or 'q' to quit: ")
 
         if user_input == 'q':
             break  # Exit the loop if the user inputs 'q'
 
+        if user_input == 'c':
+            s.tableau = [[] for _ in range(s.NUM_PILES)]
+            s.deck = []
+            s.finished_stacks = [[(rank,suite) for rank in range(13,0,-1)] for suite in range(4) for _ in range(s.num_decks)]
+            print("clearing")
+
+        if user_input == 'n':
+            s = SpiderSolitaire()
+            print("new game")
+            
         if user_input == 'm':
             move = s.apply_random_move()
             print(f"moving {move}")
