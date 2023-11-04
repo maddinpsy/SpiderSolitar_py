@@ -75,8 +75,9 @@ class TestMoves(unittest.TestCase):
         Ah 2h 3h 4h 5c 6s 7c 8c 
         """
         )
-        err = s.move_card(1,3,1)
-        self.assertEqual(err, "Invalid move")
+        with self.assertRaises(ValueError) as cm:
+            s.move_card(1,3,1)
+        self.assertEqual(cm.exception.args[0], "Invalid move")
     
     def test_multiple_cards_no_sequence(self):
         s = SpiderSolitaire()
@@ -86,8 +87,9 @@ class TestMoves(unittest.TestCase):
         Ah 2h 3h 4h 5c 6s 7c 8c 
         """
         )
-        err = s.move_card(1,2,2)
-        self.assertEqual(err, "Invalid move")
+        with self.assertRaises(ValueError) as cm:
+            s.move_card(1,2,2)
+        self.assertEqual(cm.exception.args[0], "Invalid move")
         
     def test_single_card_to_free_space(self):
         s = SpiderSolitaire()
