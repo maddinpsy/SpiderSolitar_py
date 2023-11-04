@@ -253,7 +253,8 @@ class SpiderSolitaire:
             src_piles_idx = [idx for idx in src_piles_idx if SpiderSolitaire.max_cards_placed(self.tableau[idx])>0]
             if not src_piles_idx:
                 raise ValueError("No move is possible")
-            source_idx = random.choice(src_piles_idx)
+            weights = [len(self.tableau[pile_idx]) for pile_idx in src_piles_idx]
+            source_idx = random.choices(src_piles_idx,weights)[0]
         pile = self.tableau[source_idx]
 
         # Count the number of connected cards at the end of the pile
@@ -269,7 +270,9 @@ class SpiderSolitaire:
             dst_piles_idx = [pile for pile in dst_piles_idx if len(self.tableau[pile]) > 0]
 
         # pick a random destination pile
-        dest_pile = random.choice(dst_piles)
+        # use length of piles as wights. Preferring short piles.
+        weights = [1/(len(self.tableau[pile_idx])+0.01) for pile_idx in dst_piles_idx]
+        dest_idx = random.choices(dst_piles_idx,weights)[0]
 
         # Move the selected cards and update the tableau
         cards_to_move = self.tableau[source_idx][-number_of_cards:]
