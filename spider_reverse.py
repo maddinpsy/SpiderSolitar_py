@@ -88,8 +88,9 @@ class SpiderSolitaireReverse:
             # Randomly select a pile index to add the full sequence
             pile_index = random.randint(0, len(spider_game.tableau) - 1)
             pile = spider_game.tableau[pile_index]
-            pile.extend(spider_game.finished_stacks[-1])
-            del spider_game.finished_stacks[-1]
+            stack_idx = random.randint(0,len(spider_game.finished_stacks)-1)
+            pile.extend(spider_game.finished_stacks[stack_idx])
+            del spider_game.finished_stacks[stack_idx]
 
         return pile_index
 
