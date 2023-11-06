@@ -71,18 +71,137 @@
 
 import  sys
 
-from    webresults  import  *
+CLUBS           = 0x00
+SPADES          = 0x10
+HEARTS          = 0x20
+DIAMONDS        = 0x30
 
-try :
-    game = int(sys.argv[1])
-except :
-    print "Tell me a deal number to print the cards for."
-    sys.exit(254)
+ACE             =  1
+KING            = 13
+
+
+DECK_STK        =   0
+
+PLAY_STKS       =   1
+PLAY_STK_CNT    =   10
+
+UP_STKS         =   PLAY_STKS + PLAY_STK_CNT
+UP_STK_CNT      =   8
+
+TOT_STKS        =   UP_STKS   + UP_STK_CNT
+
+
+game = 31410
+
+def card_name(n, s) :
+    if  n  == ACE       :
+        n  = "A"
+    elif n == KING      :
+        n  = "K"
+    elif n == KING - 1  :
+        n  = "Q"
+    elif n == KING - 2  :
+        n  = "J"
+    else                :
+        n  = str(n)
+
+    if  s  == CLUBS     :
+        s  = "C"
+    elif s == SPADES    :
+        s  = "S"
+    elif s == HEARTS    :
+        s  = "H"
+    elif s == DIAMONDS  :
+        s  = "D"
+
+    return("%2s%s" % ( n, s ))
 
 
 
-print "Game number", game
-print
+def get_card(cards, stknum, pos) :
+    c = abs(cards[stknum][pos])
+    return( ( c & 0xf, c & 0xf0 ) )
+
+def move_cards(cards, f_stknum, f_pos, t_stknum) :
+
+    committed        = False
+    if  (f_pos > 0) and (get_card(cards, f_stknum, f_pos)[0] + 1 != get_card(cards, f_stknum, f_pos - 1)[0]) :
+        committed    = True
+
+    cards[t_stknum] += cards[f_stknum][f_pos:]
+    del(cards[f_stknum][f_pos:])
+
+    hite = len(cards[f_stknum])
+    if  hite  > 0 :
+        hite -= 1
+        cards[f_stknum][hite] = abs(cards[f_stknum][hite])          # flip any top hidden card
+        return(True)
+
+    return(committed)
+
+def flip_top_card(cards, stknum) :
+    hite = len(cards[stknum])
+    if  hite > 0 :
+        hite -= 1
+        cards[stknum][hite] = -cards[stknum][hite]                  # flip the top card
+    pass
+
+def deal_a_round(cards, mask, face_down) :
+    for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
+        if  mask & (1 << si) :
+            pos = len(cards[DECK_STK]) - 1
+            move_cards(cards, DECK_STK, pos, si)
+            if  face_down :
+                flip_top_card(cards, si)
+            pass
+        pass
+    pass
+
+
+
+def deal(deck) :
+    cards = []
+    cards.append(deck)
+    for stknum in range(DECK_STK + 1, TOT_STKS) :
+        stk = []
+        cards.append(stk)
+
+    for i in range(0, 4) :
+        deal_a_round(cards, 0x7fe, True)
+
+    deal_a_round(    cards, 0x492, True)
+
+    deal_a_round(    cards, 0x7fe, False)
+
+    return(cards)
+
+
+
+def shuffle(game) :
+
+    def get_random_index(seed, i) :
+        seed = (seed * 214013 + 2531011 ) & 0x7FFFffff
+        return( ( seed, int(seed >> 16) % (i + 1) ) )
+
+    deck = []
+    for dn in range(0, 2) :
+        for suit in range(CLUBS, DIAMONDS + SPADES, SPADES) :
+            for   crd in range(ACE, KING + 1) :
+                deck.append(suit + crd)
+            pass
+        pass
+
+    seed = game
+
+    for i in range(len(deck) - 1, -1, -1) :
+        (seed, si)  = get_random_index(seed, i)
+        ( deck[si], deck[i] ) = ( deck[i], deck[si] )
+
+    return(deck)
+
+
+print("Game number", game)
+print()
 
 cards   = deal(shuffle(game))
 
@@ -104,17 +223,17 @@ while   True :
 
             cnam    = card_name(n, s)
 
-            print   "%s%3s" % ( spc, cnam ),
+            print   ("%s%3s" % ( spc, cnam ), end="")
             spc     = " "
         else :
-            print   "%s%3s" % ( spc, ""   ),
+            print   ("%s%3s" % ( spc, ""   ), end="")
         pass
 
-    print
+    print()
 
     i   += 1
 
-print
+print()
 
 i   = len(cards[DECK_STK])
 for di in range(0, 5) :
@@ -125,14 +244,14 @@ for di in range(0, 5) :
 
         cnam      = card_name(n, s)
 
-        print   "%s%3s" % ( spc, cnam ),
+        print  ( "%s%3s" % ( spc, cnam ), end="")
         spc     = " "
 
-    print
+    print()
 
     pass
 
-print
+print()
 
 
 
