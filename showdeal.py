@@ -71,6 +71,8 @@
 
 import  sys
 
+from SpiderSolitar import SpiderSolitaire
+
 CLUBS           = 0x00
 SPADES          = 0x10
 HEARTS          = 0x20
@@ -116,8 +118,6 @@ def card_name(n, s) :
 
     return("%2s%s" % ( n, s ))
 
-
-
 def get_card(cards, stknum, pos) :
     c = abs(cards[stknum][pos])
     return( ( c & 0xf, c & 0xf0 ) )
@@ -157,8 +157,6 @@ def deal_a_round(cards, mask, face_down) :
         pass
     pass
 
-
-
 def deal(deck) :
     cards = []
     cards.append(deck)
@@ -175,16 +173,15 @@ def deal(deck) :
 
     return(cards)
 
-
-
 def shuffle(game) :
 
     def get_random_index(seed, i) :
         seed = (seed * 214013 + 2531011 ) & 0x7FFFffff
         return( ( seed, int(seed >> 16) % (i + 1) ) )
 
+    # just build a deck of cshd A..K (Ac 2C ... Qc Kc As ... Ks Ah ... Kh Ad ... Kd Ac ... Kd)
     deck = []
-    for dn in range(0, 2) :
+    for _ in range(0, 2) :
         for suit in range(CLUBS, DIAMONDS + SPADES, SPADES) :
             for   crd in range(ACE, KING + 1) :
                 deck.append(suit + crd)
@@ -193,67 +190,77 @@ def shuffle(game) :
 
     seed = game
 
+    # shuffle that dack
     for i in range(len(deck) - 1, -1, -1) :
+        # get next seed
         (seed, si)  = get_random_index(seed, i)
+        # swap
         ( deck[si], deck[i] ) = ( deck[i], deck[si] )
 
     return(deck)
 
+def main():
+    print("Game number", game)
+    print()
 
-print("Game number", game)
-print()
+    cards   = deal(shuffle(game))
 
-cards   = deal(shuffle(game))
+    # this is just complicated printing.
+    i       = 0
+    while   True :
+        done = True
+        # for each pile
+        for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
+            # when pile size is greater than i
+            if  len(cards[si]) > i :
+                done = False
+                break
+            pass
+        # quit when all piles are greater than i
+        if  done : break
 
-i       = 0
-while   True :
-    done = True
-    for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
-        if  len(cards[si]) > i :
-            done = False
-            break
-        pass
-    if  done : break
+        # space
+        spc   = ""
+        # for each pile
+        for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
+            # when pile size is greater than i
+            if  len(cards[si]) > i :
+                ( n, s )  = get_card(cards, si, i)
 
-    spc   = ""
-    for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
-        if  len(cards[si]) > i :
-            shown = True
-            ( n, s )  = get_card(cards, si, i)
+                cnam    = card_name(n, s)
 
-            cnam    = card_name(n, s)
+                print   ("%s%3s" % ( spc, cnam ), end="")
+                spc     = " "
+            else :
+                # pile is smaller than i
+                print   ("%s%3s" % ( spc, ""   ), end="")
+            pass
 
-            print   ("%s%3s" % ( spc, cnam ), end="")
+        print()
+
+        # increase i
+        i   += 1
+    # end of loop
+    print()
+
+    # print the deck
+    i   = len(cards[DECK_STK])
+    for di in range(0, 5) :
+        spc           = ""
+        for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
+            i        -= 1
+            ( n, s )  = get_card(cards, DECK_STK, i)
+
+            cnam      = card_name(n, s)
+
+            print  ( "%s%3s" % ( spc, cnam ), end="")
             spc     = " "
-        else :
-            print   ("%s%3s" % ( spc, ""   ), end="")
+
+        print()
+
         pass
 
     print()
-
-    i   += 1
-
-print()
-
-i   = len(cards[DECK_STK])
-for di in range(0, 5) :
-    spc           = ""
-    for si in range(PLAY_STKS, PLAY_STKS + PLAY_STK_CNT) :
-        i        -= 1
-        ( n, s )  = get_card(cards, DECK_STK, i)
-
-        cnam      = card_name(n, s)
-
-        print  ( "%s%3s" % ( spc, cnam ), end="")
-        spc     = " "
-
-    print()
-
-    pass
-
-print()
-
-
 
 
 
@@ -261,3 +268,32 @@ print()
 #
 #
 # eof
+
+
+class PRNG:
+    def __init__(self, seed):
+        self.seed = seed
+
+    def get_random_index(self, i):
+        self.seed = (self.seed * 214013 + 2531011) & 0x7FFFFFFF
+        return (self.seed >> 16) % (i + 1)
+
+    def randint(self, min, max):
+        return min + self.get_random_index(max - min)
+
+    def shuffle(self, card_list):
+        for i in range(len(card_list) - 1, 0, -1):
+            j = self.get_random_index(i)
+            card_list[i], card_list[j] = card_list[j], card_list[i]
+
+
+
+def get_form_pysol_seed(seed) -> SpiderSolitaire:
+    deck = []
+    for _ in range(2):
+            for suit in range(4):
+                for rank in range(1, 14):
+                    card = (rank, suit)
+                    deck.append(card)
+    PRNG(seed).shuffle(deck)
+    return SpiderSolitaire(4,13,2,deck)
