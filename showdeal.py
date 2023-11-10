@@ -72,6 +72,7 @@
 import  sys
 
 from SpiderSolitar import SpiderSolitaire
+from spider_display import SpiderSolitaireDisplay
 
 CLUBS           = 0x00
 SPADES          = 0x10
@@ -92,8 +93,6 @@ UP_STK_CNT      =   8
 
 TOT_STKS        =   UP_STKS   + UP_STK_CNT
 
-
-game = 31410
 
 def card_name(n, s) :
     if  n  == ACE       :
@@ -190,7 +189,7 @@ def shuffle(game) :
 
     seed = game
 
-    # shuffle that dack
+    # shuffle that deck
     for i in range(len(deck) - 1, -1, -1) :
         # get next seed
         (seed, si)  = get_random_index(seed, i)
@@ -199,11 +198,11 @@ def shuffle(game) :
 
     return(deck)
 
-def main():
-    print("Game number", game)
+def main(game_seed):
+    print("Game number", game_seed)
     print()
 
-    cards   = deal(shuffle(game))
+    cards   = deal(shuffle(game_seed))
 
     # this is just complicated printing.
     i       = 0
@@ -290,10 +289,29 @@ class PRNG:
 
 def get_form_pysol_seed(seed) -> SpiderSolitaire:
     deck = []
+    # generate a deck in the correct py sol order: Clubs, Spades, Hearts, Diamonds
     for _ in range(2):
-            for suit in range(4):
-                for rank in range(1, 14):
-                    card = (rank, suit)
-                    deck.append(card)
+        for suit in [0,3,2,1]:
+            for rank in range(1, 14):
+                card = (rank, suit)
+                deck.append(card)
+
+    # shuffle the deck with the same algorithm
     PRNG(seed).shuffle(deck)
-    return SpiderSolitaire(4,13,2,deck)
+
+    # generate the tableau
+    tableau=[[] for _ in range(SpiderSolitaire.NUM_PILES)]
+    for row in range(6):
+        for idx in range(SpiderSolitaire.NUM_PILES):
+            # special rule for pysol tableau: in 4th row: only add cards to 4 stacks
+            if(row != 4 or idx in [0,3,6,9]):
+                tableau[idx].append(deck.pop())
+    return SpiderSolitaire(4,13,2,deck,tableau)
+
+if __name__ == "__main__":
+    seed = 24562
+    game = get_form_pysol_seed(seed)
+    print(SpiderSolitaireDisplay.tableau_to_string(game))
+    print()
+    print(SpiderSolitaireDisplay.deck_to_string(game))
+    main(seed)

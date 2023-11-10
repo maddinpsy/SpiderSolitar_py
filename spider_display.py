@@ -1,3 +1,6 @@
+from SpiderSolitar import SpiderSolitaire
+
+
 class SpiderSolitaireDisplay:
 
     @staticmethod
@@ -27,7 +30,18 @@ class SpiderSolitaireDisplay:
             tableau_string += "\n"
         
         return tableau_string
-   
+    
+    @staticmethod
+    def deck_to_string(s):
+        deck_string = ""
+        for card_idx, card in enumerate(reversed(s.deck)):
+            deck_string += SpiderSolitaireDisplay.card_to_string(card)
+            if((card_idx + 1)% SpiderSolitaire.NUM_PILES == 0):
+                deck_string += "\n"
+            else:
+                deck_string += " "
+        return deck_string
+    
     @staticmethod
     def display_tableau_ascii(s):
         suits_symbols = ["♠", "♥", "♦", "♣"]
