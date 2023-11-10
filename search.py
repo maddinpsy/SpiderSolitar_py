@@ -1,9 +1,9 @@
 from astar import AStar
-from spider_display import SpiderSolitaireDisplay   
+from spider_display import tableau_to_string   
 from spider_next_moves import SpiderSolitaireNextMoves
 from spider_reverse import SpiderSolitaireReverse
 from SpiderSolitar import SpiderSolitaire
-from spider_parser import SpiderSolitaireParser
+from spider_parser import tableau_from_string
 
 
 class SpiderStart(AStar):
@@ -56,7 +56,7 @@ def load_and_replay(filename="data/2_20231104-162938.json"):
     from load_store import load
     goal = SpiderSolitaire.goal()
     game, sol = load(filename)
-    print(SpiderSolitaireDisplay.tableau_to_string(game))
+    print(tableau_to_string(game))
     s = SpiderStart()
     path = s.astar(game,goal)
     print(list(map(lambda state: state.last_move, path)))
@@ -73,7 +73,7 @@ def random_play():
     SpiderSolitaireReverse.undo_remove_full_sequence(last)
     for _ in range(5):
         SpiderSolitaireReverse.do_random_reverse_move(last)
-    print(SpiderSolitaireDisplay.tableau_to_string(last))
+    print(tableau_to_string(last))
 
     s = SpiderStart()
     path = s.astar(last,goal)
@@ -82,7 +82,7 @@ def random_play():
 def one_play():
     goal = SpiderSolitaire.goal()
     last = goal.copy()
-    #     last.tableau = SpiderSolitaireParser.tableau_from_string(
+    #     last.tableau = tableau_from_string(
     #     """
     # Ts    6s    5s Ks 6s 9s Ks 4s 
     # 9s    5s       Qs    8s Qs 3s

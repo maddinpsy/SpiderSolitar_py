@@ -1,13 +1,13 @@
 import json
 from SpiderSolitar import SpiderSolitaire
-from spider_display import SpiderSolitaireDisplay
-from spider_parser import SpiderSolitaireParser
+from spider_display import tableau_to_string, card_to_string
+from spider_parser import card_from_string, tableau_from_string
 
 def store(spider_game, solution, filename):
-    tableau_str = SpiderSolitaireDisplay.tableau_to_string(spider_game)
-    deck_str = " ".join([SpiderSolitaireDisplay.card_to_string(card) for card in spider_game.deck])
+    tableau_str = tableau_to_string(spider_game)
+    deck_str = " ".join([card_to_string(card) for card in spider_game.deck])
     # take the suite of the first card of each stack
-    finished_stacks_str = "".join(SpiderSolitaireDisplay.card_to_string(stack[0])[1] for stack in spider_game.finished_stacks)
+    finished_stacks_str = "".join(card_to_string(stack[0])[1] for stack in spider_game.finished_stacks)
     with open(filename, 'w') as file:
         file.write(f"num_suits: {spider_game.num_suits}\n")
         file.write(f"num_ranks: {spider_game.num_ranks}\n")
@@ -35,14 +35,14 @@ def load(filename):
                 num_decks = int(line.split(": ")[1])
             if line.startswith("deck"):
                 deck_str = line.split(": ")[1].strip()
-                deck = [SpiderSolitaireParser.card_from_string(str) for str in deck_str.split()]
+                deck = [card_from_string(str) for str in deck_str.split()]
             if line.startswith("tableau"):
                 tableau_str = ""
                 tableau_line = file.readline()
                 while tableau_line.strip() != "":
                     tableau_str += tableau_line
                     tableau_line = file.readline()
-                tableau = SpiderSolitaireParser.tableau_from_string(tableau_str)
+                tableau = tableau_from_string(tableau_str)
             if line.startswith("finished_stacks"):
                 fin_stacks_str = line.split(": ")[1].strip()
                 finished_stacks = []

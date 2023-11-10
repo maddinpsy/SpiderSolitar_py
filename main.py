@@ -1,7 +1,7 @@
 from spider_next_moves import SpiderSolitaireNextMoves
 from spider_reverse import SpiderSolitaireReverse
 from SpiderSolitar import SpiderSolitaire
-from spider_display import SpiderSolitaireDisplay
+from spider_display import card_to_string, tableau_to_string
 
 
 if __name__ == "__main__":
@@ -9,8 +9,8 @@ if __name__ == "__main__":
 
     while True:
         # Print the current state of the tableau
-        print("Deck: " + " ".join([SpiderSolitaireDisplay.card_to_string(card) for card in s.deck]))
-        tableau_string = SpiderSolitaireDisplay.tableau_to_string(s)
+        print("Deck: " + " ".join([card_to_string(card) for card in s.deck]))
+        tableau_string = tableau_to_string(s)
         print(tableau_string)
 
         # Take user input

@@ -2,6 +2,8 @@ import unittest
 from SpiderSolitar import SpiderSolitaire
 from spider_next_moves import SpiderSolitaireNextMoves
 from spider_reverse import SpiderSolitaireReverse
+from spider_parser import tableau_from_string
+
 
 
 class TestReverseMove(unittest.TestCase):
@@ -29,7 +31,7 @@ class TestReverseMove(unittest.TestCase):
     @unittest.skip("skip")
     def test_error_case(self):
         s = SpiderSolitaire()
-        s.tableau = SpiderSolitaireParser.tableau_from_string("""
+        s.tableau = tableau_from_string("""
             9s Kd Js Kd 7h 3d 8d Ah Jc As 
             Ad 6d 6c 8c Qd Ks 4c Qc Ts 7d
             3s Jd 3s 4c 9d Ad 9d 2c Ts 4d

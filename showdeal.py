@@ -72,10 +72,10 @@
 import  sys
 
 from SpiderSolitar import SpiderSolitaire
-from spider_display import SpiderSolitaireDisplay
+from spider_display import tableau_to_string, deck_to_string
 
 CLUBS           = 0x00
-SPADES          = 0x10
+ADES          = 0x10
 HEARTS          = 0x20
 DIAMONDS        = 0x30
 
@@ -311,7 +311,7 @@ def get_form_pysol_seed(seed) -> SpiderSolitaire:
 if __name__ == "__main__":
     seed = 24562
     game = get_form_pysol_seed(seed)
-    print(SpiderSolitaireDisplay.tableau_to_string(game))
+    print(tableau_to_string(game))
     print()
-    print(SpiderSolitaireDisplay.deck_to_string(game))
+    print(deck_to_string(game))
     main(seed)

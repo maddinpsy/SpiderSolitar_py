@@ -1,6 +1,6 @@
 import unittest
 from SpiderSolitar import SpiderSolitaire
-from spider_parser import SpiderSolitaireParser
+from spider_parser import tableau_from_string
 from spider_next_moves import SpiderSolitaireNextMoves
 
 
@@ -8,7 +8,7 @@ class TestGetValidMoves(unittest.TestCase):
 
     def test_basic_moves(self):
         s = SpiderSolitaire()
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Jh Ts 5d 4d Ad Ks 7c 9d Kc Kd
         """
@@ -19,7 +19,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_sequence_moves(self):
         s = SpiderSolitaire()
         s.deck = []
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Jh Ts 5d 4d Ad Ks 3c 9d Kc Kd
         As 3h 3d 9h 4d 8s    2h 
@@ -32,7 +32,7 @@ class TestGetValidMoves(unittest.TestCase):
         
     def test_single_empty_pile(self):
         s = SpiderSolitaire()
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Jh Ts    4d Ad Ks 3c 9d 7c Kd
         Kh Js    4d Ad Ks 7c 9d 
@@ -43,7 +43,7 @@ class TestGetValidMoves(unittest.TestCase):
     
     def test_multiple_empty_piles(self):
         s = SpiderSolitaire()
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Jh Ts    4d    Ks 3c 9d 
         Kh Js    4d    Ks 7c 9d 
@@ -54,7 +54,7 @@ class TestGetValidMoves(unittest.TestCase):
     
     def test_dont_move_between_emptie_piles(self):
         s = SpiderSolitaire()
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Jh Ts    4d    Ks 3c 8d 
         """
@@ -64,7 +64,7 @@ class TestGetValidMoves(unittest.TestCase):
         
     def test_final_move(self):
         s = SpiderSolitaire()
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Kh       6h
         Qh       5h
@@ -85,7 +85,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_dont_move_to_same_twice(self):
         s = SpiderSolitaire()
         s.deck = []
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Kh Ts 5d 4d 5d 5d 5d 5h 
         """
@@ -97,7 +97,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_dont_move_to_same_twice_complex(self):
         s = SpiderSolitaire()
         s.deck = []
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         5h 6s Kd 4d 4c 3d 3s 3h Kc Kd
            5s 5d       2d 2s
@@ -110,7 +110,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_dont_move_between_same(self):
         s = SpiderSolitaire()
         s.deck = []
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Kc Kc Kc Kc Kc Kc Kc Kc Kc Kc
         Kh Ts 5d    5d 5d 5d 5h 
@@ -124,7 +124,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_dont_move_n_to_n(self):
         s = SpiderSolitaire()
         s.deck = []
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Kc Kc Kc Kc Kc Kc Kc Kc Kc Kc
         Kh 4s 5d 4d 5c 5s 5d 5h 
@@ -138,7 +138,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_add_combinations_on_no_return(self):
         s = SpiderSolitaire()
         s.deck = []
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Kc Kc Kc Kc Kc Kc Kc Kc Kc Kc
         Kh    5d 4d 5c 5s 5d 5h 
@@ -152,7 +152,7 @@ class TestGetValidMoves(unittest.TestCase):
     def test_add_combinations_on_deal(self):
         s = SpiderSolitaire()
         s.deck = [(13,3),(13,3),(13,3),(13,3),(13,3),(13,3),(13,3),(13,3)]
-        s.tableau = SpiderSolitaireParser.tableau_from_string(
+        s.tableau = tableau_from_string(
         """
         Kc Kc Kc Kc Kc Kc Kc Kc Kc Kc
         Kc    5d Kc 5c Kc Kc Kc 
