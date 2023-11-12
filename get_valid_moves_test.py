@@ -1,7 +1,7 @@
 import unittest
 from SpiderSolitar import SpiderSolitaire
 from spider_parser import tableau_from_string
-from spider_next_moves import SpiderSolitaireNextMoves
+from spider_next_moves import get_valid_moves
 
 
 class TestGetValidMoves(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestGetValidMoves(unittest.TestCase):
         Jh Ts 5d 4d Ad Ks 7c 9d Kc Kd
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(1, 0, 1), (3, 2, 1), (7, 1, 1), "deal"])
     
     def test_sequence_moves(self):
@@ -27,7 +27,7 @@ class TestGetValidMoves(unittest.TestCase):
         Jh Th 5d 7h Ad Ks     
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(1, 0, 1), (3, 1, 3)])
         
     def test_single_empty_pile(self):
@@ -38,7 +38,7 @@ class TestGetValidMoves(unittest.TestCase):
         Kh Js    4d Ad Ks 7c 9d 
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(0, 2, 1), (1, 2, 1), (3, 2, 1), (4, 2, 1), (5, 2, 1), (6, 2, 1), (7, 2, 1)])
     
     def test_multiple_empty_piles(self):
@@ -49,7 +49,7 @@ class TestGetValidMoves(unittest.TestCase):
         Kh Js    4d    Ks 7c 9d 
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(0, 2, 1), (1, 2, 1), (3, 2, 1), (5, 2, 1), (6, 2, 1), (7, 2, 1)])
     
     def test_dont_move_between_emptie_piles(self):
@@ -59,7 +59,7 @@ class TestGetValidMoves(unittest.TestCase):
         Jh Ts    4d    Ks 3c 8d 
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(1,0,1), (6,3,1)])
         
     def test_final_move(self):
@@ -75,7 +75,7 @@ class TestGetValidMoves(unittest.TestCase):
         7h
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(0,1,1),(0,1,2),(0,1,3),(0,1,4),(0,1,5),(0,1,6), 
                                  (3,0,6),
                                  (3,1,1),(3,1,2),(3,1,3),(3,1,4),(3,1,5)
@@ -90,7 +90,7 @@ class TestGetValidMoves(unittest.TestCase):
         Kh Ts 5d 4d 5d 5d 5d 5h 
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(3,2,1)])
         
     @unittest.skip("enhancement not neccessary/too complex")
@@ -104,7 +104,7 @@ class TestGetValidMoves(unittest.TestCase):
                           As
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(3,0,1),(4,0,1),(5,3,2),(6,3,3),(7,3,1)])
     
     def test_dont_move_between_same(self):
@@ -117,7 +117,7 @@ class TestGetValidMoves(unittest.TestCase):
               4d 
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [])
     
     @unittest.skip("enhancement not neccessary/too complex")
@@ -130,7 +130,7 @@ class TestGetValidMoves(unittest.TestCase):
         Kh 4s 5d 4d 5c 5s 5d 5h 
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(1,2,1),(3,2,1)])
     
     
@@ -145,7 +145,7 @@ class TestGetValidMoves(unittest.TestCase):
               4s
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, ["???"])
         
     @unittest.skip("enhancement not neccessary/too complex")
@@ -159,6 +159,6 @@ class TestGetValidMoves(unittest.TestCase):
               4s
         """
         )
-        moves = SpiderSolitaireNextMoves.get_valid_moves(s)
+        moves = get_valid_moves(s)
         self.assertEqual(moves, [(2,4,1),"deal"])
     

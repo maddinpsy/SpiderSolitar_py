@@ -1,5 +1,5 @@
 from spider_next_moves import SpiderSolitaireNextMoves
-from spider_reverse import SpiderSolitaireReverse
+from spider_reverse import do_random_reverse_move
 from SpiderSolitar import SpiderSolitaire
 from spider_display import card_to_string, tableau_to_string
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
             print("new game")
             
         if user_input == 'm':
-            move = SpiderSolitaireNextMoves.apply_random_move(s)
+            move = apply_random_move(s)
             print(f"moving {move}")
             
         if user_input == 'd':
@@ -38,6 +38,6 @@ if __name__ == "__main__":
             print("dealing")
 
         if user_input == 'r':
-            move = SpiderSolitaireReverse.do_random_reverse_move(s)
+            move = do_random_reverse_move(s)
             print(f"random reverse move: {move}")
             

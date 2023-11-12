@@ -1,14 +1,14 @@
 from astar import AStar
 from spider_display import tableau_to_string   
 from spider_next_moves import SpiderSolitaireNextMoves
-from spider_reverse import SpiderSolitaireReverse
+from spider_reverse import do_random_reverse_move, undo_remove_full_sequence
 from SpiderSolitar import SpiderSolitaire
 from spider_parser import tableau_from_string
 
 
 class SpiderStart(AStar):
     def neighbors(self, node:SpiderSolitaire):
-        moves = SpiderSolitaireNextMoves.get_valid_moves(node)
+        moves = get_valid_moves(node)
         neighbors = []
         for move in moves:
             neighbor = node.copy()
@@ -44,7 +44,7 @@ def generate_test_data():
             run+=1
             last = goal.copy()
             for _ in range(5):
-                SpiderSolitaireReverse.do_random_reverse_move(last)
+                do_random_reverse_move(last)
             s = SpiderStart()
             path = s.astar(last,goal)
             time_string = time.strftime("%Y%m%d-%H%M%S")
@@ -67,12 +67,12 @@ def load_and_replay(filename="data/2_20231104-162938.json"):
 def random_play():
     goal = SpiderSolitaire.goal()
     last = goal.copy()
-    SpiderSolitaireReverse.undo_remove_full_sequence(last)
-    SpiderSolitaireReverse.undo_remove_full_sequence(last)
-    SpiderSolitaireReverse.undo_remove_full_sequence(last)
-    SpiderSolitaireReverse.undo_remove_full_sequence(last)
+    undo_remove_full_sequence(last)
+    undo_remove_full_sequence(last)
+    undo_remove_full_sequence(last)
+    undo_remove_full_sequence(last)
     for _ in range(5):
-        SpiderSolitaireReverse.do_random_reverse_move(last)
+        do_random_reverse_move(last)
     print(tableau_to_string(last))
 
     s = SpiderStart()
