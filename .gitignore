@@ -3,3 +3,4 @@ data/*
 plspider.exe
 plspider.htm
 webresults.py
+.ipynb_checkpoints/*

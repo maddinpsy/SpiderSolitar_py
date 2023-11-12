@@ -287,7 +287,7 @@ class PRNG:
 
 
 
-def get_form_pysol_seed(seed) -> SpiderSolitaire:
+def get_form_pysol_seed(seed):
     deck = []
     # generate a deck in the correct py sol order: Clubs, Spades, Hearts, Diamonds
     for _ in range(2):
@@ -306,11 +306,12 @@ def get_form_pysol_seed(seed) -> SpiderSolitaire:
             # special rule for pysol tableau: in 4th row: only add cards to 4 stacks
             if(row != 4 or idx in [0,3,6,9]):
                 tableau[idx].append(deck.pop())
-    return SpiderSolitaire(4,13,2,deck,tableau)
+    return (deck,tableau)
 
 if __name__ == "__main__":
     seed = 14781
-    game = get_form_pysol_seed(seed)
+    deck, tableau = get_form_pysol_seed(seed)
+    game = SpiderSolitaire(4,13,2,deck,tableau)
     print(tableau_to_string(game))
     print()
     print(deck_to_string(game))
